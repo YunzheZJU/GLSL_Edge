@@ -2,8 +2,8 @@
 // Created by Yunzhe on 2017/12/5.
 //
 
-#ifndef GPUBASEDRENDERING_A1_SHADER_H
-#define GPUBASEDRENDERING_A1_SHADER_H
+#ifndef GPUBASEDRENDERING_A4_SHADER_H
+#define GPUBASEDRENDERING_A4_SHADER_H
 
 #include "global.h"
 #include <map>
@@ -39,6 +39,7 @@ private:
     bool fileExists(const string &fileName);
 
     string getExtension(const char *fileName);
+
 public:
     Shader();
 
@@ -92,4 +93,4 @@ public:
     const char *getTypeString(GLenum type);
 };
 
-#endif //GPUBASEDRENDERING_A1_SHADER_H
+#endif //GPUBASEDRENDERING_A4_SHADER_H

@@ -4,11 +4,10 @@ int main(int argc, char *argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE | GLUT_MULTISAMPLE);
     glutInitWindowSize(1280, 720);
-    int windowHandle = glutCreateWindow("GPU Based Rendering: A4");
+    glutCreateWindow("GPU Based Rendering: A4");
 
     // Set the background color - dark grey
     glClearColor(0.2, 0.2, 0.2, 0.0);
-//    glColor3f(0.1, 0.3, 0.8);
 
     glutDisplayFunc(Redraw);
     glutReshapeFunc(Reshape);

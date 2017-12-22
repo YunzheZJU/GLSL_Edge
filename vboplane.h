@@ -4,8 +4,7 @@
 #include "global.h"
 #include "drawable.h"
 
-class VBOPlane : public Drawable
-{
+class VBOPlane : public Drawable {
 private:
     unsigned int vaoHandle;
     int faces;

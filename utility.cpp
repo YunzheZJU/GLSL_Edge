@@ -69,18 +69,6 @@ void saveCamera(GLfloat *camera, GLfloat *target, GLfloat *polar) {
     cameramatrix[2][2] = polar[T];
 }
 
-void loadCamera(GLfloat *camera, GLfloat *target, GLfloat *polar) {
-    camera[X] = cameramatrix[0][0];
-    camera[Y] = cameramatrix[0][1];
-    camera[Z] = cameramatrix[0][2];
-    target[X] = cameramatrix[1][0];
-    target[Y] = cameramatrix[1][1];
-    target[Z] = cameramatrix[1][2];
-    polar[R] = cameramatrix[2][0];
-    polar[A] = cameramatrix[2][1];
-    polar[T] = cameramatrix[2][2];
-}
-
 void updateWindowcenter(int *window, int *windowcenter) {
     windowcenter[X] = glutGet(GLUT_WINDOW_X) + window[W] / 2.0;
     windowcenter[Y] = glutGet(GLUT_WINDOW_Y) + window[H] / 2.0;
