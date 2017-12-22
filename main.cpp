@@ -27,16 +27,7 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    try {
-        shader.compileShader("edge.vert");
-        shader.compileShader("edge.frag");
-        shader.link();
-        shader.use();
-    } catch (GLSLProgramException &e) {
-        cerr << e.what() << endl;
-        exit(EXIT_FAILURE);
-    }
-
+    initShader();
     initVBO();
     setupFBO();
     setupVAO();

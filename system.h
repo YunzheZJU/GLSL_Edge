@@ -53,4 +53,6 @@ void setupFBO();
 
 void setupVAO();
 
+void initShader();
+
 #endif //GPUBASEDRENDERING_A4_SYSTEM_H

@@ -18,19 +18,20 @@ GLuint fsQuad;
 mat4 model;
 mat4 view;
 mat4 projection;
-GLfloat camera[3] = {0, 0, 5};                    // Position of camera
-GLfloat target[3] = {0, 0, 0};                    // Position of target of camera
-GLfloat camera_polar[3] = {5, -1.57f, 0};            // Polar coordinates of camera
+GLfloat angle = 0.0f;                               // Use this to control the rotation
+GLfloat edgeThreshold = 0.05f;                      // Threshold of edge detection
+GLfloat camera[3] = {0, 0, 5};                      // Position of camera
+GLfloat target[3] = {0, 0, 0};                      // Position of target of camera
+GLfloat camera_polar[3] = {5, -1.57f, 0};           // Polar coordinates of camera
 GLfloat camera_locator[3] = {0, -5, 10};            // Position of shadow of camera
-bool bMsaa = false;                            // Switch of Multisampling anti-alias
-bool bCamera = true;                        // Switch of camera/target control
-bool bFocus = true;                            // Status of window focus
-bool bMouse = false;                        // Whether mouse postion should be moved
 int fpsMode = 2;                                    // 0:off, 1:on, 2:waiting
 int window[2] = {1280, 720};                        // Window size
 int windowCenter[2];                                // Center of this window, to be updated
-char message[70] = "Welcome!";                        // Message string to be shown
-GLfloat angle = 0.0f;
+char message[70] = "Welcome!";                      // Message string to be shown
+bool bMsaa = false;                                 // Switch of multisampling anti-alias
+bool bCamera = true;                                // Switch of camera/target control
+bool bFocus = true;                                 // Status of window focus
+bool bMouse = false;                                // Whether mouse postion should be moved
 
 void Idle() {
     glutPostRedisplay();
@@ -57,7 +58,6 @@ void Redraw() {
     shader.use();
     glBindFramebuffer(GL_FRAMEBUFFER, fboHandle);
     // Render scene
-    glViewport(static_cast<GLint>(window[W] / 2.0 - 640), static_cast<GLint>(window[H] / 2.0 - 360), 1280, 720);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();                        // Reset The Current Modelview Matrix
     // 必须定义，以在固定管线中绘制物体
@@ -354,6 +354,25 @@ void ProcessNormalKey(unsigned char k, int x, int y) {
             }
             break;
         }
+            // 边缘检测阈值
+        case '+': {
+            cout << "+ pressed." << endl;
+            if (edgeThreshold < 0.08f) {
+                edgeThreshold += 0.001f;
+                cout << fixed << setprecision(3) << "Threshold of edge detection is set to " << edgeThreshold << "." << endl;
+                sprintf(message,  "Threshold of edge detection is set to %.3f.", edgeThreshold);
+            }
+            break;
+        }
+        case '-': {
+            cout << "- pressed." << endl;
+            if (edgeThreshold > 0.03f) {
+                edgeThreshold -= 0.001f;
+                cout << fixed << setprecision(3) << "Threshold of edge detection is set to " << edgeThreshold << "." << endl;
+                sprintf(message,  "Threshold of edge detection is set to %.3f.", edgeThreshold);
+            }
+            break;
+        }
             // 屏幕截图
         case 'X':
         case 'x': {
@@ -448,7 +467,6 @@ void setShader() {
     pass1Index = glGetSubroutineIndex(shaderProgram, GL_FRAGMENT_SHADER, "pass1");
     pass2Index = glGetSubroutineIndex(shaderProgram, GL_FRAGMENT_SHADER, "pass2");
 
-    shader.setUniform("EdgeThreshold", 0.05f);
     shader.setUniform("Width", window[W]);
     shader.setUniform("Height", window[H]);
     shader.setUniform("Light.Intensity", vec3(1.0f, 1.0f, 1.0f));
@@ -461,6 +479,7 @@ void updateMVPZero() {
                        vec3(0.0f, 1.0f, 0.0f));
     projection = glm::perspective(45.0f, 1.7778f, 0.1f, 30000.0f);
     shader.setUniform("Light.Position", view * vec4(0.0f, 0.0f, 10.0f, 1.0f));
+    shader.setUniform("EdgeThreshold", edgeThreshold);
 }
 
 void updateMVPOne() {
@@ -518,11 +537,7 @@ void setupFBO() {
     // Create the texture object
     glGenTextures(1, &renderTex);
     glBindTexture(GL_TEXTURE_2D, renderTex);
-#ifdef __APPLE__
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 512, 512, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-#else
-    glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGBA8, 1280, 720);
-#endif
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1280, 720, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -537,8 +552,7 @@ void setupFBO() {
     glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, 1280, 720);
 
     // Bind the depth buffer to the FBO
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                              GL_RENDERBUFFER, depthBuf);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuf);
 
     // Set the targets for the fragment output variables
     GLenum drawBuffers[] = {GL_COLOR_ATTACHMENT0};
@@ -590,4 +604,16 @@ void setupVAO() {
     glEnableVertexAttribArray(2);  // Texture coordinates
 
     glBindVertexArray(0);
+}
+
+void initShader() {
+    try {
+        shader.compileShader("edge.vert");
+        shader.compileShader("edge.frag");
+        shader.link();
+        shader.use();
+    } catch (GLSLProgramException &e) {
+        cerr << e.what() << endl;
+        exit(EXIT_FAILURE);
+    }
 }
