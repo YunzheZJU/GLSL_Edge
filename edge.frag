@@ -28,6 +28,7 @@ struct MaterialInfo {
 uniform MaterialInfo Material;
 
 layout(location = 0) out vec4 FragColor;
+layout(location = 1) out vec4 DepthData;
 
 vec3 phongModel(vec3 pos, vec3 norm) {
     vec3 s = normalize(vec3(Light.Position) - pos);
@@ -44,7 +45,10 @@ float luma(vec3 color) {
 // Pass #1
 subroutine (RenderPassType)
 vec4 pass1() {
-    return vec4(phongModel(Position, Normal), 1.0);
+    float depth = clamp(-Position.z / 30.0, 0.1, 0.9);
+//    DepthData = vec4(depth, depth, depth, 1.0);
+//    return vec4(phongModel(Position, Normal), 1.0);
+    return vec4(depth, depth, depth, 1.0);
 }
 
 // Pass #2
@@ -52,14 +56,14 @@ subroutine (RenderPassType)
 vec4 pass2() {
     float dx = 1.0 / float(Width);
     float dy = 1.0 / float(Height);
-    float s00 = luma(texture(RenderTex, TexCoord + vec2(-dx, dy)).rgb);
-    float s10 = luma(texture(RenderTex, TexCoord + vec2(-dx, 0.0)).rgb);
-    float s20 = luma(texture(RenderTex, TexCoord + vec2(-dx, -dy)).rgb);
-    float s01 = luma(texture(RenderTex, TexCoord + vec2(0.0, dy)).rgb);
-    float s21 = luma(texture(RenderTex, TexCoord + vec2(0.0, -dy)).rgb);
-    float s02 = luma(texture(RenderTex, TexCoord + vec2(dx, dy)).rgb);
-    float s12 = luma(texture(RenderTex, TexCoord + vec2(dx, 0.0)).rgb);
-    float s22 = luma(texture(RenderTex, TexCoord + vec2(dx, dy)).rgb);
+    float s00 = texture(RenderTex, TexCoord + vec2(-dx, dy)).r;
+    float s10 = texture(RenderTex, TexCoord + vec2(-dx, 0.0)).r;
+    float s20 = texture(RenderTex, TexCoord + vec2(-dx, -dy)).r;
+    float s01 = texture(RenderTex, TexCoord + vec2(0.0, dy)).r;
+    float s21 = texture(RenderTex, TexCoord + vec2(0.0, -dy)).r;
+    float s02 = texture(RenderTex, TexCoord + vec2(dx, dy)).r;
+    float s12 = texture(RenderTex, TexCoord + vec2(dx, 0.0)).r;
+    float s22 = texture(RenderTex, TexCoord + vec2(dx, dy)).r;
     float sx = s00 + 2 * s10 + s20 - (s02 + 2 * s12 + s22);
     float sy = s00 + 2 * s01 + s02 - (s20 + 2 * s21 + s22);
     float dist = sx * sx + sy * sy;
@@ -69,6 +73,7 @@ vec4 pass2() {
     else {
         return vec4(0.0, 0.0, 0.0, 1.0);
     }
+//    return texture(RenderTex, TexCoord);
 }
 
 void main() {

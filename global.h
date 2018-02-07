@@ -55,4 +55,13 @@ using glm::mat3;
 // Define paning pace in fps mode: Should be 1
 #define PANNING_PACE 1
 
+// Define edge threshold maximum
+#define EDGE_THRESHOLD_MAX 0.02f
+
+// Define edge threshold minimum
+#define EDGE_THRESHOLD_MIX 0.0002f
+
+// Define edge threshold step
+#define EDGE_THRESHOLD_STEP 0.0001F
+
 #endif //GPUBASEDRENDERING_A4_GLOBAL_H

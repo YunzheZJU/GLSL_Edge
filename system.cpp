@@ -19,7 +19,7 @@ mat4 model;
 mat4 view;
 mat4 projection;
 GLfloat angle = 0.0f;                               // Use this to control the rotation
-GLfloat edgeThreshold = 0.05f;                      // Threshold of edge detection
+GLfloat edgeThreshold = 0.01f;                      // Threshold of edge detection
 GLfloat camera[3] = {0, 0, 5};                      // Position of camera
 GLfloat target[3] = {0, 0, 0};                      // Position of target of camera
 GLfloat camera_polar[3] = {5, -1.57f, 0};           // Polar coordinates of camera
@@ -76,8 +76,8 @@ void Redraw() {
     updateMVPZero();
     updateMVPOne();
     teapot->render();
-    updateMVPTwo();
-    plane->render();
+//    updateMVPTwo();
+//    plane->render();
     updateMVPThree();
     torus->render();
 
@@ -357,19 +357,19 @@ void ProcessNormalKey(unsigned char k, int x, int y) {
             // 边缘检测阈值
         case '+': {
             cout << "+ pressed." << endl;
-            if (edgeThreshold < 0.08f) {
-                edgeThreshold += 0.001f;
-                cout << fixed << setprecision(3) << "Threshold of edge detection is set to " << edgeThreshold << "." << endl;
-                sprintf(message,  "Threshold of edge detection is set to %.3f.", edgeThreshold);
+            if (edgeThreshold < EDGE_THRESHOLD_MAX) {
+                edgeThreshold += EDGE_THRESHOLD_STEP;
+                cout << fixed << setprecision(4) << "Threshold of edge detection is set to " << edgeThreshold << "." << endl;
+                sprintf(message,  "Threshold of edge detection is set to %.4f.", edgeThreshold);
             }
             break;
         }
         case '-': {
             cout << "- pressed." << endl;
-            if (edgeThreshold > 0.03f) {
-                edgeThreshold -= 0.001f;
-                cout << fixed << setprecision(3) << "Threshold of edge detection is set to " << edgeThreshold << "." << endl;
-                sprintf(message,  "Threshold of edge detection is set to %.3f.", edgeThreshold);
+            if (edgeThreshold > EDGE_THRESHOLD_MIX) {
+                edgeThreshold -= EDGE_THRESHOLD_STEP;
+                cout << fixed << setprecision(4) << "Threshold of edge detection is set to " << edgeThreshold << "." << endl;
+                sprintf(message,  "Threshold of edge detection is set to %.4f.", edgeThreshold);
             }
             break;
         }
@@ -555,7 +555,7 @@ void setupFBO() {
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthBuf);
 
     // Set the targets for the fragment output variables
-    GLenum drawBuffers[] = {GL_COLOR_ATTACHMENT0};
+    GLenum drawBuffers[] = {GL_COLOR_ATTACHMENT0, GL_NONE};
     glDrawBuffers(1, drawBuffers);
 
     GLenum result = glCheckFramebufferStatus(GL_FRAMEBUFFER);
